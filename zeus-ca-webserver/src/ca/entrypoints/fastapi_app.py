@@ -29,8 +29,10 @@ async def simple_enroll(
 
     csr = x509.load_pem_x509_csr(csr)
 
+    response.headers.update({
+        "Content-Type": "application/pkcs7-mime; smime-type=certs-only",
+        "Content-Transfer-Encoding": "base64"
+    })
     cert = certificate_signer.get_signed_x509_certificate_from_csr(csr)
-    # cert_bytes = cert.public_bytes(serialization.Encoding.DER)
-    # return base64.urlsafe_b64encode(cert_bytes)
     return base64.b64encode(
         serialization.pkcs7.serialize_certificates([cert], serialization.Encoding.DER))
