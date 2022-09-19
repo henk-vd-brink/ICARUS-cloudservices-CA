@@ -10,4 +10,4 @@ def bootstrap(
     )
 ):
 
-    return {"certificate_signerToken": certificate_signer}
+    return {"certificate_signer": certificate_signer}

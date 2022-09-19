@@ -1,9 +1,12 @@
 import logging
 import schema
+import json
+import base64
 from cryptography import x509
 
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import JSONResponse
+from cryptography.hazmat.primitives import hashes, serialization
 
 from .. import bootstrap
 
@@ -26,17 +29,8 @@ async def simple_enroll(
 
     csr = x509.load_pem_x509_csr(csr)
 
-    cert = certificate_signer.get_signed_x509_certificate_from_csr_as_pem(csr)
-
-    # print(certificate_signer.get_signed_x509_certificate_from_csr_as_pem(csr).decode("utf-8"))
-
-
-
-@app.get(
-    "/.well-known/est/cacerts"
-)
-async def simple_enroll(
-    request: Request,
-    response: Response,
-):
-    print(request.__dict__)
+    cert = certificate_signer.get_signed_x509_certificate_from_csr(csr)
+    # cert_bytes = cert.public_bytes(serialization.Encoding.DER)
+    # return base64.urlsafe_b64encode(cert_bytes)
+    return base64.b64encode(
+        serialization.pkcs7.serialize_certificates([cert], serialization.Encoding.DER))

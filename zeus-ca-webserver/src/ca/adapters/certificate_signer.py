@@ -18,7 +18,7 @@ class CertificateSigner:
             root_ca_key_as_bytes = file.read()
         return serialization.load_pem_private_key(root_ca_key_as_bytes, password=None)
 
-    def _get_signed_x509_certificate_from_csr(self, csr_cert):
+    def get_signed_x509_certificate_from_csr(self, csr_cert):
         return x509.CertificateBuilder().subject_name(
             csr_cert.subject
         ).issuer_name(
@@ -34,5 +34,5 @@ class CertificateSigner:
         ).sign(self._root_ca_key, hashes.SHA256())
 
     def get_signed_x509_certificate_from_csr_as_pem(self, csr_cert):
-        cert = self._get_signed_x509_certificate_from_csr(csr_cert=csr_cert)
+        cert = self.get_signed_x509_certificate_from_csr(csr_cert=csr_cert)
         return cert.public_bytes(serialization.Encoding.PEM)
