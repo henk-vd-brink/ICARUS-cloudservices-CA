@@ -33,6 +33,5 @@ class CertificateSigner:
             datetime.datetime.utcnow() + datetime.timedelta(days=10)
         ).sign(self._root_ca_key, hashes.SHA256())
 
-    def get_signed_x509_certificate_from_csr_as_pem(self, csr_cert):
-        cert = self.get_signed_x509_certificate_from_csr(csr_cert=csr_cert)
-        return cert.public_bytes(serialization.Encoding.PEM)
+    def get_root_ca_certificate(self):
+        return self._root_ca_cert
