@@ -18,41 +18,45 @@ bootstrap_items = bootstrap.bootstrap()
 
 certificate_signer = bootstrap_items.get("certificate_signer")
 
-@app.post(
-    "/.well-known/est/simpleenroll"
-)
+
+@app.post("/.well-known/est/simpleenroll")
 async def simple_enroll(
     request: Request,
     response: Response,
-):  
-    csr = await request.body()
+):
+    csr_b64 = await request.body()
+    csr = base64.b64decode(csr_b64)
 
-    csr = x509.load_pem_x509_csr(csr)
+    csr = x509.load_der_x509_csr(csr)
 
-    response.headers.update({
-        "Content-Type": "application/pkcs7-mime; smime-type=certs-only",
-        "Content-Transfer-Encoding": "base64"
-    })
-    
     cert = certificate_signer.get_signed_x509_certificate_from_csr(csr)
 
-    return base64.b64encode(
-        serialization.pkcs7.serialize_certificates([cert], serialization.Encoding.DER))
+    return Response(
+        content=base64.b64encode(
+            serialization.pkcs7.serialize_certificates(
+                [cert], serialization.Encoding.DER
+            )
+        ),
+        status_code=200,
+        headers={"status": "200 OK", "content-transfer-encoding": "base64"},
+        media_type="application/pkcs7-mime; smime-type=certs-only",
+    )
 
 
-@app.get(
-    "/.well-known/est/cacerts"
-)
+@app.get("/.well-known/est/cacerts")
 async def simple_enroll(
     request: Request,
     response: Response,
-):  
+):
     cert = certificate_signer.get_root_ca_certificate()
 
-    response.headers.update({
-        "Content-Type": "application/pkcs7-mime; smime-type=certs-only",
-        "Content-Transfer-Encoding": "base64"
-    })
-
-    return base64.b64encode(
-        serialization.pkcs7.serialize_certificates([cert], serialization.Encoding.DER))
+    return Response(
+        content=base64.b64encode(
+            serialization.pkcs7.serialize_certificates(
+                [cert], serialization.Encoding.DER
+            )
+        ),
+        status_code=200,
+        headers={"status": "200 OK", "content-transfer-encoding": "base64"},
+        media_type="application/pkcs7-mime",
+    )
