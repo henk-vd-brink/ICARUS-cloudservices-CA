@@ -25,6 +25,8 @@ async def simple_enroll(
     response: Response,
 ):
     csr_b64 = await request.body()
+
+    # in
     csr = base64.b64decode(csr_b64)
 
     csr = x509.load_der_x509_csr(csr)
