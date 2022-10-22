@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  icarus-ca-webserver:
+    image: cricarusprod001.azurecr.io/icarus-ca-webserver
+    container_name: icarus-ca-webserver
+    ports:
+      - 8000:8000
+    environment:
+      - PSQL_DB_NAME=${PSQL_DB_NAME}
+      - PSQL_DB_USER=${PSQL_DB_USER}
+      - PSQL_DB_PASSWORD=${PSQL_DB_PASSWORD}
+      - PSQL_DB_HOST=icarus-ca-storage
+    entrypoint: ["./scripts/start.fastapi.sh"]
+    depends_on: 
+      - icarus-ca-storage
+
+  icarus-ca-storage:
+    image: cricarusprod001.azurecr.io/icarus-ca-storage
+    container_name: icarus-ca-storage
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${PSQL_DB_USER}
+      - POSTGRES_PASSWORD=${PSQL_DB_PASSWORD}
