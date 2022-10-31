@@ -16,7 +16,8 @@ if __name__ == "__main__":
         "Content-Type": "application/pkcs10",
     }
 
-    data = create_certificate_request().public_bytes(serialization.Encoding.PEM)
+    data = create_certificate_request().public_bytes(serialization.Encoding.DER)
+    data = base64.b64encode(data)
 
     resp = requests.post(
         "http://localhost:8000/certificates",
@@ -25,3 +26,4 @@ if __name__ == "__main__":
         auth=("estuser", "estpwd"),
         verify=False,
     )
+    print(resp.headers)

@@ -4,3 +4,4 @@ schema
 cryptography
 sqlalchemy
 psycopg2-binary
+alembic

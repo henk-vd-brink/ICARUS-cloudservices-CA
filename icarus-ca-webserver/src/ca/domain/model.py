@@ -1,6 +1,7 @@
 import base64
-from cryptography import x509
 from datetime import datetime
+from cryptography import x509
+from cryptography.hazmat.primitives import serialization
 
 
 class RootCertificate:
@@ -20,21 +21,30 @@ class RootCertificate:
 
 
 class LeafCertificateSigningRequest:
-    def __init__(
-        self,
-        csr_uid: str,
-    ):
+    def __init__(self, csr_uid: str, common_name: str, csr: str):
         self.csr_uid = csr_uid
+        self.common_name = common_name
+        self.csr = csr
 
         self.events = []
 
+    @staticmethod
+    def get_decoded_base64_der_encoded_csr(base64_der_encoded_csr):
+        der_encoded_csr = base64.b64decode(base64_der_encoded_csr)
+        return x509.load_der_x509_csr(der_encoded_csr)
+
     @classmethod
-    def from_csr_uid_and_pem_encoded_csr(cls, csr_uid, pem_encoded_csr):
-        csr = x509.load_pem_x509_csr(pem_encoded_csr)
+    def from_csr_uid_and_base64_der_encoded_csr(cls, csr_uid, base64_der_encoded_csr):
+        csr = cls.get_decoded_base64_der_encoded_csr(base64_der_encoded_csr)
+        pem_encoded_csr = csr.public_bytes(serialization.Encoding.PEM).decode("utf-8")
 
-        print(dir(csr))
+        csr_subject = dict(
+            [attr.split("=") for attr in csr.subject.rfc4514_string().split(",")]
+        )
 
-        return cls(csr_uid)
+        csr_common_name = csr_subject.get("CN")
+
+        return cls(csr_uid, csr_common_name, pem_encoded_csr)
 
     def __repr__(self):
         return f"<LeafCertificateSigningRequest {self.csr_uid}>"

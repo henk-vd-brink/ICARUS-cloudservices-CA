@@ -6,7 +6,7 @@ def store_leaf_certificate_request(cmd, uow):
     csr_uid = cmd.csr_uid
 
     with uow:
-        model.LeafCertificateSigningRequest.from_csr_uid_and_pem_encoded_csr(
+        model.LeafCertificateSigningRequest.from_csr_uid_and_base64_der_encoded_csr(
             csr_uid, csr
         )
 
