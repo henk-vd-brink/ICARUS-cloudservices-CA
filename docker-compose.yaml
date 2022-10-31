@@ -11,6 +11,8 @@ services:
       - PSQL_DB_USER=${PSQL_DB_USER}
       - PSQL_DB_PASSWORD=${PSQL_DB_PASSWORD}
       - PSQL_DB_HOST=icarus-ca-storage
+    volumes:
+      - /home/prominendt/repos/ICARUS-cloudservices-CA/dev/certs:/home/docker_user/certs
     entrypoint: ["./scripts/start.fastapi.sh"]
     depends_on: 
       - icarus-ca-storage

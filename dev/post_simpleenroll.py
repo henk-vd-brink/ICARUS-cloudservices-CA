@@ -14,14 +14,15 @@ if __name__ == "__main__":
     csr = create_certificate_request()
 
     headers = {
-        "Content-Type": "application/pkcs10",
-        # "Content-Transfer-Encoding": "base64"
+        "content-type": "application/pkcs10",
+        "content-transfer-encoding": "base64",
     }
 
-    data = create_certificate_request().public_bytes(serialization.Encoding.PEM)
+    data = create_certificate_request().public_bytes(serialization.Encoding.DER)
+    data = base64.b64encode(data)
 
     resp = requests.post(
-        "https://localhost:8085/.well-known/est/simpleenroll",
+        "http://localhost:8000/.well-known/est/simpleenroll",
         headers=headers,
         data=data,
         auth=("estuser", "estpwd"),
