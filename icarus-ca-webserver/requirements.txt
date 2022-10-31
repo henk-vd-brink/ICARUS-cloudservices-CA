@@ -2,3 +2,5 @@ uvicorn
 fastapi
 schema
 cryptography
+sqlalchemy
+psycopg2-binary

@@ -10,8 +10,7 @@ from ..adapters import repository
 
 
 class AbstractUnitOfWork(abc.ABC):
-
-    images: repository.AbstractRepository
+    leaf_certificate_signing_requests: repository.AbstractRepository
 
     def __enter__(self):
         return self
@@ -31,15 +30,11 @@ class AbstractUnitOfWork(abc.ABC):
         raise NotImplementedError
 
     def collect_new_events(self):
-        for image in self.images.seen:
-            while image.events:
-                yield image.events.pop(0)
-        for transaction in self.transactions.seen:
-            while transaction.events:
-                yield transaction.events.pop(0)
-        for pos_event in self.pos_events.seen:
-            while pos_event.events:
-                yield pos_event.events.pop(0)
+        for (
+            leaf_certificate_signing_request
+        ) in self.leaf_certificate_signing_requests.seen:
+            while leaf_certificate_signing_request.events:
+                yield leaf_certificate_signing_request.events.pop(0)
 
 
 DEFAULT_SESSION_FACTORY = sessionmaker(
@@ -56,9 +51,9 @@ class SqlAlchemyUnitOfWork(AbstractUnitOfWork):
 
     def __enter__(self):
         self.session = self.session_factory()  # type: Session
-        self.images = repository.ImageSqlAlchemyRepository(self.session)
-        self.transactions = repository.TransactionSqlAlchemyRepository(self.session)
-        self.pos_events = repository.PosEventSqlAlchemyRepository(self.session)
+        self.leaf_certificate_signing_requests = (
+            repository.LeafCertificateSigningRequestSqlAlchemyRepository(self.session)
+        )
         return super().__enter__()
 
     def __exit__(self, *args):

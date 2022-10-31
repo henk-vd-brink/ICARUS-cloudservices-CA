@@ -1,11 +1,21 @@
 import logging
 import schema
 import json
+import uuid
 import base64
 from cryptography import x509
 
-from fastapi import FastAPI, Request, Response, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import (
+    FastAPI,
+    Request,
+    Response,
+    HTTPException,
+    UploadFile,
+    Depends,
+    status,
+)
+
 from cryptography.hazmat.primitives import hashes, serialization
 
 from .. import bootstrap
@@ -14,51 +24,33 @@ app = FastAPI()
 
 logger = logging.getLogger(__name__)
 
-bootstrap_items = bootstrap.bootstrap()
-
-certificate_signer = bootstrap_items.get("certificate_signer")
+bus = bootstrap.bootstrap()
 
 
-@app.post("/.well-known/est/simpleenroll")
-async def simple_enroll(
-    request: Request,
-    response: Response,
-):
-    csr_b64 = await request.body()
-
-    # in
-    csr = base64.b64decode(csr_b64)
-
-    csr = x509.load_der_x509_csr(csr)
-
-    cert = certificate_signer.get_signed_x509_certificate_from_csr(csr)
-
-    return Response(
-        content=base64.b64encode(
-            serialization.pkcs7.serialize_certificates(
-                [cert], serialization.Encoding.DER
-            )
-        ),
-        status_code=200,
-        headers={"status": "200 OK", "content-transfer-encoding": "base64"},
-        media_type="application/pkcs7-mime; smime-type=certs-only",
-    )
+@app.get("/certificates")
+async def get_all_certificates(request: Request, response: Response):
+    pass
 
 
-@app.get("/.well-known/est/cacerts")
-async def simple_enroll(
-    request: Request,
-    response: Response,
-):
-    cert = certificate_signer.get_root_ca_certificate()
+@app.post("/certificates")
+async def create_new_leaf_certificate_from_csr(request: Request, response: Response):
+    csr = await request.body()
+    csr_uid = str(uuid.uuid4())
 
-    return Response(
-        content=base64.b64encode(
-            serialization.pkcs7.serialize_certificates(
-                [cert], serialization.Encoding.DER
-            )
-        ),
-        status_code=200,
-        headers={"status": "200 OK", "content-transfer-encoding": "base64"},
-        media_type="application/pkcs7-mime",
-    )
+    message = {"csr_uid": csr_uid, "csr": csr}
+
+    try:
+        bus.handle_message(
+            "StoreLeafCertificateRequest",
+            message,
+        )
+    except schema.SchemaError as e:
+        raise HTTPException(404, detail=str(e))
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(500, detail="Server Error")
+
+    response.headers.update({"location": "/certificates/" + csr_uid})
+    response.status_code = 201
+
+    return response

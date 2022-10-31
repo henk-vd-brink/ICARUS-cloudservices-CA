@@ -13,19 +13,8 @@ def command_factory(name, **fields):
     return cls
 
 
-ValidateLeafCertificate = command_factory(
-    "ValidateLeafCertificate",
-    csr=str,
-)
-
-CreateImageFromStoreEvent = command_factory("CreateImageFromStoreEvent", file_name=str)
-
-AddMetaDataToImage = command_factory(
-    "AddMetaDataToImage",
-    image_uuid=str,
-    label=Or(str, None),
-    bx=Or(float, None),
-    by=Or(float, None),
-    w=Or(float, None),
-    h=Or(float, None),
+StoreLeafCertificateRequest = command_factory(
+    "StoreLeafCertificateRequest",
+    csr_uid=str,
+    csr=bytes,
 )
