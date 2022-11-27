@@ -1,10 +1,21 @@
 import datetime
+import abc
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.backends import default_backend
 
 
-class CertificateSigner:
+class AbstractCertificateSigner(abc.ABC):
+    @abc.abstractmethod
+    def get_signed_x509_certificate_from_csr(self, csr_cert):
+        pass
+
+    @abc.abstractmethod
+    def get_root_ca_certificate(self):
+        pass
+
+
+class CertificateSigner(AbstractCertificateSigner):
     def __init__(self, path_to_root_ca_cert, path_to_root_ca_key):
         self._root_ca_cert = self._load_root_ca_cert(path_to_root_ca_cert)
         self._root_ca_key = self._load_root_ca_key(path_to_root_ca_key)
