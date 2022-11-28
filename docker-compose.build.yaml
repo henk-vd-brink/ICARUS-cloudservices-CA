@@ -1,20 +1,14 @@
 version: "3.8"
 
 services:
-  icarus-ca-webserver:
+  icarus-cs-ca-webserver:
     build:
-      context: icarus-ca-webserver
+      context: icarus-cs-ca-webserver
       dockerfile: Dockerfile
-    image: cricarusprod001.azurecr.io/icarus-ca-webserver
+    image: cricarusprod001.azurecr.io/icarus-cs-ca-webserver
 
-  icarus-ca-storage:
+  icarus-cs-ca-storage:
     build:
-      context: icarus-ca-storage
+      context: icarus-cs-ca-storage
       dockerfile: Dockerfile
-    image: cricarusprod001.azurecr.io/icarus-ca-storage
-
-  # icarus-ca-proxy:
-  #   build:
-  #     context: icarus-ca-proxy
-  #     dockerfile: Dockerfile
-  #   image: cricarusprod001.azurecr.io/icarus-ca-proxy
+    image: cricarusprod001.azurecr.io/icarus-cs-ca-storage

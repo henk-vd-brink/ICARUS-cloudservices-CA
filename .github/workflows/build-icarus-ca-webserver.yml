@@ -1,4 +1,4 @@
-name: Build icarus-ca-webserver
+name: Build icarus-cs-ca-webserver
 
 on:
   push:
@@ -38,7 +38,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: "{{defaultContext}}:icarus-ca-webserver"
+          context: "{{defaultContext}}:icarus-cs-ca-webserver"
           file: Dockerfile
           push: true
-          tags: ${{ env.CRICARUSPROD001_URL }}/icarus-ca-webserver:${{ steps.extract_branch.outputs.tag }}, ${{ env.CRICARUSPROD001_URL }}/icarus-ca-webserver:latest
+          tags: ${{ env.CRICARUSPROD001_URL }}/icarus-cs-ca-webserver:${{ steps.extract_branch.outputs.tag }}, ${{ env.CRICARUSPROD001_URL }}/icarus-cs-ca-webserver:latest
