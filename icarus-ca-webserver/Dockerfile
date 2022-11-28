@@ -11,3 +11,5 @@ COPY scripts/ ${HOME}/scripts
 RUN chmod +x scripts/*.sh
 
 COPY src/ ${HOME}/src
+
+COPY dev/certs/ ${HOME}/certs
